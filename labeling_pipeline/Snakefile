@@ -1,0 +1,70 @@
+"""
+Requires the 'snakemake' conda environment (defined in environment.yml):
+$ conda activate snakemake
+
+Then, to label all datasets, run:
+$ snakemake --cores 1 --use-conda
+"""
+
+TISSUES = ["spleen", "thymus", "lymph_node", "kidney", "lung"]
+
+rule all:
+    input:
+        expand("results/{tissue}/labeled.h5ad", tissue=TISSUES)
+
+rule combine_uf_tissue_datasets:
+    input:
+        "data/labels/annotations_spleen_0510.csv",
+        "data/expression/uf-20210409-094552/dataset_info.csv"
+    output:
+        temp("results/{tissue}/expr.h5ad")
+    script:
+        "scripts/combine_uf_tissue_datasets.py"
+
+rule label_spleen:
+    input:
+        "results/spleen/expr.h5ad"
+    output:
+        "results/spleen/labeled.h5ad"
+    script:
+        "scripts/label_spleen.py"
+
+rule spleen_to_seurat:
+    input:
+        "results/spleen/labeled.h5ad"
+    output:
+        temp("results/spleen/labeled.h5seurat")
+    conda:
+        "envs/r_seurat_env.yml"
+    script:
+        "scripts/anndata_to_seurat.R"
+
+rule transfer_spleen_labels:
+    input:
+        "results/spleen/labeled.h5seurat",
+        "results/{tissue}/expr.h5ad"
+    output:
+        temp("results/{tissue}/expr.h5seurat"),
+        "results/{tissue}/labeled.h5ad"
+    conda:
+        "envs/r_seurat_env.yml"
+    script:
+        "scripts/transfer_spleen_labels.R"
+
+rule label_kidney:
+    input:
+        "data/expression/ucsd-snare-rna-20210406.h5ad",
+        "data/labels/Kidney_Cortex_Medulla_20190529_annotations_07292020.txt"
+    output:
+        "results/kidney/labeled.h5ad"
+    script:
+        "scripts/label_kidney.py"
+
+rule label_lung:
+    input:
+        "data/expression/lung.h5ad",
+        "data/labels/GSE136831_AllCells.Samples.CellType.MetadataTable.txt"
+    output:
+        "results/lung/labeled.h5ad"
+    script:
+        "scripts/label_lung.py"
