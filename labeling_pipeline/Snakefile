@@ -8,14 +8,62 @@ $ snakemake --cores 1 --use-conda
 
 TISSUES = ["spleen", "thymus", "lymph_node", "kidney", "lung"]
 
+data_url = "https://drive.google.com/drive/folders/1dRGQvuaYPrMo3L6jkJYrdhRG_CFy_SLH?usp=sharing"
+
 rule all:
     input:
         expand("results/{tissue}/labeled.h5ad", tissue=TISSUES)
 
+rule confirm_data_present:
+    output:
+        "data/expression/lung.h5ad",
+        "data/expression/ucsd-snare-rna-20210406.h5ad",
+        "data/expression/uf-20210409-094552/2dca1bf5832a4102ba780e9e54f6c350",
+        "data/expression/uf-20210409-094552/3683b49e27133c064ccbd59ff9723e7c",
+        "data/expression/uf-20210409-094552/399643b5aed6b71edee96d4bf9e0d306",
+        "data/expression/uf-20210409-094552/4081680ef553db5f91fb3587dde595b6",
+        "data/expression/uf-20210409-094552/617aa0f0fc9a4ad38ecd96afad012575",
+        "data/expression/uf-20210409-094552/6202e01a99ad81e7f1a2e6919534785e",
+        "data/expression/uf-20210409-094552/7fd04d1aba61c35843dd2eb6a19d2545",
+        "data/expression/uf-20210409-094552/8776e9183d5f85d90535a0b1b3b4e32a",
+        "data/expression/uf-20210409-094552/8a238da50c0c0436510b857c21e4e792",
+        "data/expression/uf-20210409-094552/a5234e06fed9a14ee8d29c5aa0258ba5",
+        "data/expression/uf-20210409-094552/b40eb3abccf2341f274cfd4ba809c03e",
+        "data/expression/uf-20210409-094552/c03acf2de0caff5e5850e0f76d555e1b",
+        "data/expression/uf-20210409-094552/dataset_info.csv",
+        "data/expression/uf-20210409-094552/ed8a4dbbb1554a5e3227d6dfb2368828",
+        "data/expression/uf-20210409-094552/lymph_node_datasets.txt",
+        "data/expression/uf-20210409-094552/spleen_datasets.txt",
+        "data/expression/uf-20210409-094552/thymus_datasets.txt",
+        "data/labels/annotations_spleen_0510.csv",
+        "data/labels/GSE136831_AllCells.Samples.CellType.MetadataTable.txt",
+        "data/labels/Kidney_Cortex_Medulla_20190529_annotations_07292020.txt"
+    run:
+        err_str = "\nSome input data files are missing. Please download them from:\n" \
+            + f"\n\t{data_url}\n"
+        raise RuntimeError(err_str)
+        
+
 rule combine_uf_tissue_datasets:
     input:
         "data/labels/annotations_spleen_0510.csv",
-        "data/expression/uf-20210409-094552/dataset_info.csv"
+        "data/expression/uf-20210409-094552/dataset_info.csv",
+        "data/expression/uf-20210409-094552/lymph_node_datasets.txt",
+        "data/expression/uf-20210409-094552/spleen_datasets.txt",
+        "data/expression/uf-20210409-094552/thymus_datasets.txt",
+        "data/expression/uf-20210409-094552/2dca1bf5832a4102ba780e9e54f6c350",
+        "data/expression/uf-20210409-094552/3683b49e27133c064ccbd59ff9723e7c",
+        "data/expression/uf-20210409-094552/399643b5aed6b71edee96d4bf9e0d306",
+        "data/expression/uf-20210409-094552/4081680ef553db5f91fb3587dde595b6",
+        "data/expression/uf-20210409-094552/617aa0f0fc9a4ad38ecd96afad012575",
+        "data/expression/uf-20210409-094552/6202e01a99ad81e7f1a2e6919534785e",
+        "data/expression/uf-20210409-094552/7fd04d1aba61c35843dd2eb6a19d2545",
+        "data/expression/uf-20210409-094552/8776e9183d5f85d90535a0b1b3b4e32a",
+        "data/expression/uf-20210409-094552/8a238da50c0c0436510b857c21e4e792",
+        "data/expression/uf-20210409-094552/a5234e06fed9a14ee8d29c5aa0258ba5",
+        "data/expression/uf-20210409-094552/b40eb3abccf2341f274cfd4ba809c03e",
+        "data/expression/uf-20210409-094552/c03acf2de0caff5e5850e0f76d555e1b",
+        "data/expression/uf-20210409-094552/ed8a4dbbb1554a5e3227d6dfb2368828"
     output:
         temp("results/{tissue}/expr.h5ad")
     script:

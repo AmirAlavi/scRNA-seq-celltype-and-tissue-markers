@@ -15,8 +15,8 @@ info['hexstring'] = info['localPath'].apply(lambda s: Path(str(s)).stem)
 info.drop_duplicates(subset=['hexstring'], keep=False, inplace=True)
 info.set_index('hexstring', inplace=True)
 
-data_root = Path("data/expression/uf-20210409-094552")
 # Load each dataset and add the metadata and annotations
+data_root = Path("data/expression/uf-20210409-094552")
 with open(data_root / f"{snakemake.wildcards['tissue']}_datasets.txt", "r") as f:
     hexstrings = f.read().splitlines()
 adatas = []
